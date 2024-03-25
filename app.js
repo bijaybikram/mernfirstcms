@@ -8,7 +8,7 @@ const Blog = require("./model/blogModel");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// connection to database
+// connection function to database
 connectDatabase();
 
 // GET api
@@ -21,13 +21,13 @@ app.get("/", (req, res) => {
 
 // CREATE Blog api
 app.post("/createBlog", async (req, res) => {
-  console.log(req.body);
+  const { title, subTitle, description } = req.body;
 
   // insert to database goes here
   await Blog.create({
-    title: req.body.title,
-    subTitle: req.body.subTitle,
-    description: req.body.description,
+    title: title,
+    subTitle: subTitle,
+    description: description,
   });
 
   res.json({
@@ -41,6 +41,46 @@ app.post("/createBlog", async (req, res) => {
   // });
 });
 
+// GET Api for all blogs
+app.get("/blogs", async (req, res) => {
+  // fetching all blogs from the database
+  const blogs = await Blog.find();
+  if (blogs.length == 0) {
+    res.status(404).json({
+      // status: 404,
+      message: "There is no blog!",
+    });
+  } else {
+    res.json({
+      status: 200,
+      message: "Blogs fetched succesfully!",
+      data: blogs,
+    });
+  }
+});
+
+// GET Api for single blog
+app.get("/blogs/:id", async (req, res) => {
+  console.log(req.params.id);
+  const id = req.params.id;
+  const blog = await Blog.findById(id);
+  // alternative
+  // const blog = await Blog.findById(id)
+
+  if (blog) {
+    res.status(200).json({
+      status: 200,
+      message: "single blog fetched",
+      data: blog,
+    });
+  } else {
+    res.status(404).json({
+      message: "Blog is not available right now!",
+    });
+  }
+});
+
+// establishing connection to the port 2000
 app.listen(2000, () => {
   console.log("app started at the post 2000!");
 });
