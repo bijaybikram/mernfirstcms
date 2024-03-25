@@ -1,18 +1,15 @@
 const express = require("express");
 const app = express();
-const { connectDatabase } = require("./database/database");
 
 // importing from other folder
+const { connectDatabase } = require("./database/database");
+const Blog = require("./model/blogModel");
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // connection to database
 connectDatabase();
-// mongoose
-//   .connect(
-//     "mongodb+srv://hello:hello@cluster0.oz2dydb.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
-//   )
-//   .then(() => {
-//     console.log("database connected successfully!");
-//   });
 
 // GET api
 app.get("/", (req, res) => {
@@ -20,6 +17,28 @@ app.get("/", (req, res) => {
     status: 200,
     message: "Page sucessfully loaded!",
   });
+});
+
+// CREATE Blog api
+app.post("/createBlog", async (req, res) => {
+  console.log(req.body);
+
+  // insert to database goes here
+  await Blog.create({
+    title: req.body.title,
+    subTitle: req.body.subTitle,
+    description: req.body.description,
+  });
+
+  res.json({
+    status: 201,
+    message: "blog created",
+  });
+
+  // Alternative
+  // res.status(200).json({
+  //   message: "blog created",
+  // });
 });
 
 app.listen(2000, () => {
