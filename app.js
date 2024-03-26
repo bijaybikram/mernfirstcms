@@ -5,6 +5,9 @@ const app = express();
 const { connectDatabase } = require("./database/database");
 const Blog = require("./model/blogModel");
 
+app.set("view engine", "ejs");
+
+// to parse json data from forms
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -13,14 +16,11 @@ connectDatabase();
 
 // GET api
 app.get("/", (req, res) => {
-  res.json({
-    status: 200,
-    message: "Page sucessfully loaded!",
-  });
+  res.render("home");
 });
 
-// CREATE Blog api
-app.post("/createBlog", async (req, res) => {
+// CREATE Blog apis
+app.post("/blogs", async (req, res) => {
   const { title, subTitle, description } = req.body;
 
   // insert to database goes here
@@ -65,7 +65,7 @@ app.get("/blogs/:id", async (req, res) => {
   const id = req.params.id;
   const blog = await Blog.findById(id);
   // alternative
-  // const blog = await Blog.findById(id)
+  // const blog = await Blog.find({_id : id})
 
   if (blog) {
     res.status(200).json({
@@ -78,6 +78,32 @@ app.get("/blogs/:id", async (req, res) => {
       message: "Blog is not available right now!",
     });
   }
+});
+
+// API for edit and update blogs
+app.patch("/blogs/:id", async (req, res) => {
+  const { id } = req.params;
+  const { title, subTitle, description } = req.body;
+  console.log(req.body);
+
+  await Blog.findByIdAndUpdate(id, {
+    title: title,
+    subTitle: subTitle,
+    description: description,
+  });
+  res.status(200).json({
+    message: "Blog edited succesfully",
+  });
+});
+
+// API for deleting app
+app.delete("/blogs/:id", async (req, res) => {
+  const { id } = req.params;
+
+  await Blog.findByIdAndDelete(id);
+  res.status(200).json({
+    message: "blog deleted succesfully",
+  });
 });
 
 // establishing connection to the port 2000
