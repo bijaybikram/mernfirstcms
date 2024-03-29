@@ -54,11 +54,10 @@ app.get("/blogs", async (req, res) => {
   if (blogs.length == 0) {
     res.status(404).json({
       // status: 404,
-      message: "There is no blog!",
+      message: "No Blog Found!",
     });
   } else {
-    res.json({
-      status: 200,
+    res.status(200).json({
       message: "Blogs fetched succesfully!",
       blogs: blogs,
     });
