@@ -4,8 +4,14 @@ const app = express();
 // importing from other folder
 const { connectDatabase } = require("./database/database");
 const Blog = require("./model/blogModel");
+const cors = require("cors");
 
-app.set("view engine", "ejs");
+app.use(
+  cors({
+    origin: ["http://localhost:5173"],
+    // allowedHeaders: ["GET","POST", "PATCH"]
+  })
+);
 
 // to parse json data from forms
 app.use(express.json());
@@ -15,11 +21,11 @@ app.use(express.urlencoded({ extended: true }));
 connectDatabase();
 
 // GET api
-app.get("/", (req, res) => {
-  res.render("home");
-});
+// app.get("/", (req, res) => {
+//   res.render("home");
+// });
 
-// CREATE Blog apis
+// CREATE API for creating Blog
 app.post("/blogs", async (req, res) => {
   const { title, subTitle, description } = req.body;
 
@@ -54,7 +60,7 @@ app.get("/blogs", async (req, res) => {
     res.json({
       status: 200,
       message: "Blogs fetched succesfully!",
-      data: blogs,
+      blogs: blogs,
     });
   }
 });
@@ -80,23 +86,30 @@ app.get("/blogs/:id", async (req, res) => {
   }
 });
 
-// API for edit and update blogs
+// PATCH API for edit and update blogs
 app.patch("/blogs/:id", async (req, res) => {
   const { id } = req.params;
   const { title, subTitle, description } = req.body;
-  console.log(req.body);
 
-  await Blog.findByIdAndUpdate(id, {
-    title: title,
-    subTitle: subTitle,
-    description: description,
-  });
-  res.status(200).json({
-    message: "Blog edited succesfully",
-  });
+  const blogFoundWithId = Blog.find({ _id: id });
+  // check if blog exist or not
+  if ((await blogFoundWithId).length == 0) {
+    res.status(404).json({
+      message: "Blog with that Id is not found!",
+    });
+  } else {
+    await Blog.findByIdAndUpdate(id, {
+      title: title,
+      subTitle: subTitle,
+      description: description,
+    });
+    res.status(200).json({
+      message: "Blog edited succesfully",
+    });
+  }
 });
 
-// API for deleting app
+// DELETE API for deleting app
 app.delete("/blogs/:id", async (req, res) => {
   const { id } = req.params;
 
@@ -107,6 +120,6 @@ app.delete("/blogs/:id", async (req, res) => {
 });
 
 // establishing connection to the port 2000
-app.listen(2000, () => {
-  console.log("app started at the post 2000!");
+app.listen(3000, () => {
+  console.log("app started at the post 3000!");
 });
