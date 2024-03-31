@@ -73,7 +73,6 @@ app.get("/blogs/:id", async (req, res) => {
 
   if (blog) {
     res.status(200).json({
-      status: 200,
       message: "single blog fetched",
       data: blog,
     });
